@@ -45,12 +45,12 @@ if (!wallet) { console.error('[FAIL] no wallets loaded (set PRIVATE_KEY in .env)
 // errors so an unstable laptop/VPS connection can't leave the bot hung.
 const bot = new TelegramBot(TOKEN, {
   polling: {
-    params: { timeout: 30 },
-    interval: 300,
+    params: { timeout: 5 },
+    interval: 1000,
     autoStart: true,
     dropPendingUpdates: true,
   },
-  request: { timeout: 30000 }, // fail a stuck HTTP call instead of hanging forever
+  request: { timeout: 10000 }, // fail a stuck HTTP call instead of hanging forever
 });
 
 // Send that never throws — a blocked user / 403 must not crash the process.
