@@ -130,7 +130,7 @@ export async function mintOne(target, wallet, onEvent = () => {}, opts = {}) {
       onEvent({ stage: 'allowlist', eligible: true, wallet: signer.address });
       if (!built.active) {
         throw new Error(
-          `seadrop ${sd.version} allowlist: belum aktif (buka ${fmtWIB(built.startTime)}, tutup ${built.endTime ? fmtWIB(built.endTime) : 'tanpa batas'})`,
+          `seadrop ${sd.version} allowlist: not active yet (opens ${fmtWIB(built.startTime)}, closes ${built.endTime ? fmtWIB(built.endTime) : 'no limit'})`,
         );
       }
       txRequest = { to: built.to, from: signer.address, data: built.data, value: built.value };
@@ -145,8 +145,8 @@ export async function mintOne(target, wallet, onEvent = () => {}, opts = {}) {
       } else {
         const mech = await getMintMechanisms(sd.seadrop, target.contract, provider);
         if (mech.signers.length || mech.tokenGated.length) {
-          const kind = mech.signers.length ? 'signed (butuh signature OpenSea)' : 'token-gated';
-          onEvent({ stage: 'allowlist', eligible: false, wallet: signer.address, reason: `${kind} — fallback ke public` });
+          const kind = mech.signers.length ? 'signed (needs OpenSea signature)' : 'token-gated';
+          onEvent({ stage: 'allowlist', eligible: false, wallet: signer.address, reason: `${kind} — falling back to public` });
         }
       }
       const built = await buildSeadropMint({
@@ -159,7 +159,7 @@ export async function mintOne(target, wallet, onEvent = () => {}, opts = {}) {
       if (!built.active) {
         const st = await tokenStatus(target.contract, provider);
         throw new Error(
-          `seadrop ${sd.version}: public mint belum aktif (buka ${fmtWIB(built.drop.startTime)}, tutup ${built.drop.endTime ? fmtWIB(built.drop.endTime) : 'tanpa batas'}, maxSupply=${st.maxSupply ?? '?'})`,
+          `seadrop ${sd.version}: public mint not active yet (opens ${fmtWIB(built.drop.startTime)}, closes ${built.drop.endTime ? fmtWIB(built.drop.endTime) : 'no limit'}, maxSupply=${st.maxSupply ?? '?'})`,
         );
       }
       txRequest = { to: built.to, from: signer.address, data: built.data, value: built.value };
@@ -319,7 +319,7 @@ async function mintOpenseaDrop(target, signer, provider, amount, onEvent, opts =
     let cookie = null;
     try {
       cookie = await getSessionCookies(signer);
-      onEvent({ stage: 'allowlist', eligible: true, wallet: signer.address, reason: 'opensea session aktif' });
+      onEvent({ stage: 'allowlist', eligible: true, wallet: signer.address, reason: 'opensea session active' });
     } catch (e) {
       // Login itself failed → surface the original (public) error, it's clearer.
       throw new Error(firstErr.message);

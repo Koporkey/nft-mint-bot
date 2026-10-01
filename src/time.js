@@ -1,7 +1,7 @@
-// time.js — human-readable time formatting in WIB (Asia/Jakarta, UTC+7)
-const WIB_OFFSET_MS = 7 * 3600 * 1000;
-const DAYS = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+// time.js — human-readable time formatting in WIB (Africa, UTC+1)
+const WIB_OFFSET_MS = 1 * 3600 * 1000;
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thurs', 'Fri', 'Sat'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Agu', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const p2 = (n) => String(n).padStart(2, '0');
 

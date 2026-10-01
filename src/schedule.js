@@ -100,8 +100,8 @@ export async function mintAt(target, wallets, whenUnix, onEvent = () => {}, opts
 const HOT_LEAD_MS = 2000;
 const REFRESH_MS = 30_000;
 
-const CLOSED_RE = /not active|belum aktif|notactive|not started|notstarted|notenabled|not enabled|invalidmerkleproof|invalid merkle|simulation revert|execution reverted|mint not|before start|too early/i;
-const FATAL_RE = /insufficient funds|invalid private key|unknown chain|no recognized mint|proteksi harga|price exceeded|melebihi batas proteksi/i;
+const CLOSED_RE = /not active|belum active|notactive|not started|notstarted|notenabled|not enabled|invalidmerkleproof|invalid merkle|simulation revert|execution reverted|mint not|before start|too early/i;
+const FATAL_RE = /insufficient funds|invalid private key|unknown chain|no recognized mint|Price protection|price exceeded|exceeds the maximum price limit/i;
 
 // Poll until the mint is actually open, then send from every wallet. For
 // Seadrop, spins from `startAtUnix` (or the resolved startTime). For generic
@@ -175,7 +175,7 @@ export async function mintWhenOpen(target, wallets, onEvent = () => {}, opts = {
 
   const nowSec = () => Math.floor(Date.now() / 1000);
   if (openAt != null && endAt > 0 && nowSec() >= endAt) {
-    throw new Error(`stage sudah berakhir (tutup ${fmtWIB(endAt)}) — tidak ada yang bisa di-mint`);
+    throw new Error(`The stage has ended (closes ${fmtWIB(endAt)}) — Nothing can be minted`);
   }
 
   // Two-phase wait (osnm-z pattern):
@@ -205,7 +205,7 @@ export async function mintWhenOpen(target, wallets, onEvent = () => {}, opts = {
             const win = await getEligibleOpenWindow(target.slug, list[0].address, cookie);
             if (win) {
               if (win.endTime > 0 && nowSec() >= win.endTime) {
-                throw new Error(`stage sudah berakhir (tutup ${fmtWIB(win.endTime)}) — tidak ada yang bisa di-mint`);
+                throw new Error(`The stage has ended (closes ${fmtWIB(win.endTime)}) — Nothing can be minted.`);
               }
               if (maxPriceWei != null && win.priceUnit != null) {
                 const curWei = ethers.parseEther(String(win.priceUnit)) * BigInt(target.amount || 1);
@@ -218,7 +218,7 @@ export async function mintWhenOpen(target, wallets, onEvent = () => {}, opts = {
             const win = await resolveOpenWindow(target);
             if (win) {
               if (win.endTime > 0 && nowSec() >= win.endTime) {
-                throw new Error(`stage sudah berakhir (tutup ${fmtWIB(win.endTime)}) — tidak ada yang bisa di-mint`);
+                throw new Error(`The stage has ended (closes ${fmtWIB(win.endTime)}) — Nothing can be minted.`);
               }
               openAt = win.startTime; endAt = win.endTime;
             }
@@ -234,12 +234,12 @@ export async function mintWhenOpen(target, wallets, onEvent = () => {}, opts = {
                   }
                 }
               } catch (e) {
-                if (/proteksi harga/i.test(e.message)) throw e;
+                if (/Price protection/i.test(e.message)) throw e;
               }
             }
           }
         } catch (e) {
-          if (/sudah berakhir|proteksi harga/i.test(e.message)) throw e;
+          if (/The stage has ended|Price protection/i.test(e.message)) throw e;
         }
       }
     }
